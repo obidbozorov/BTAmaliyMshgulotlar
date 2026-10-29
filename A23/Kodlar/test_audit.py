@@ -1,12 +1,17 @@
-# A23 · Har bir zaiflik uchun Proof of Concept: hujum Zaif.sol da ishlaydi, Tuzatilgan.sol da ishlamaydi (12 ta tekshiruv)
-# Ishga tushirish: python test_audit.py            · faqat zaif kontraktlar: python test_audit.py --faqat-zaif
-import sys, solcx
+# A23 · Har bir zaiflik uchun Proof of Concept: hujum Zaif.sol da ishlaydi, tuzatilgan kontraktda ishlamaydi (12 ta tekshiruv)
+# Ishga tushirish: python test_audit.py --faqat-zaif          — faqat 6 ta hujum (zaif kontraktlar)
+#                  python test_audit.py MeningTuzatishim.sol  — o'z tuzatishingizni tekshirish (kontrakt nomlari:
+#                  BankTuzatilgan, HamyonTuzatilgan, TokenTuzatilgan, OmmaviyTuzatilgan, LotereyaTuzatilgan, AuksionTuzatilgan)
+import os, sys, solcx
 from web3 import Web3, EthereumTesterProvider
 from eth_utils import keccak
 
+TUZATISH = next((a for a in sys.argv[1:] if a.endswith(".sol")), "Tuzatilgan.sol")
+if not os.path.exists(TUZATISH) and "--faqat-zaif" not in sys.argv:
+    sys.exit(f"{TUZATISH} topilmadi. Avval: python test_audit.py --faqat-zaif  yoki o'z tuzatish faylingizni bering.")
+FAYLLAR = ["Zaif.sol", "Hujumlar.sol"] + ([TUZATISH] if os.path.exists(TUZATISH) else [])
 solcx.install_solc("0.8.28")
-B = {k.split(":")[1]: v for k, v in solcx.compile_files(["Zaif.sol", "Hujumlar.sol", "Tuzatilgan.sol"],
-     output_values=["abi", "bin"], solc_version="0.8.28").items()}
+B = {k.split(":")[1]: v for k, v in solcx.compile_files(FAYLLAR, output_values=["abi", "bin"], solc_version="0.8.28").items()}
 w3 = Web3(EthereumTesterProvider()); A = w3.eth.accounts; E = 10**18
 EGASI, QURBON, HUJUMCHI = A[0], A[1], A[7]
 def dep(n, *a, frm=0, value=0):
@@ -20,6 +25,7 @@ bal = w3.eth.get_balance
 ball, natijalar = 0, []
 def tek(nom, fn):
     global ball
+    if nom[1] == "b" and TUZATISH not in FAYLLAR: return          # tuzatish fayli berilmagan — faqat hujumlar
     try: ok = bool(fn())
     except Exception as e: ok, nom = False, nom + f"  [{type(e).__name__}: {str(e)[:60]}]"
     ball += ok; natijalar.append(("✓ " if ok else "✗ ") + nom)
