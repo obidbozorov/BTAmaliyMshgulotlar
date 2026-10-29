@@ -1,0 +1,16 @@
+{
+  "name": "a14-hardhat-loyiha",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A14 · Smart-kontraktlarni Hardhat muhitida avtomatik testlash",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "gaz": "node scripts/gaz.js",
+    "coverage": "hardhat coverage"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "6.1.2",
+    "hardhat": "2.29.1"
+  }
+}
