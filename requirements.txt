@@ -1,0 +1,27 @@
+# Barcha A0x mashqlari uchun yagona muhit
+# O'rnatish: pip install -r requirements.txt
+
+# A04, A05, A08 — xesh/imzo/manzil kriptografiyasi
+pycryptodome==3.24.1
+ecdsa==0.19.2
+mnemonic==0.21
+
+# A07, A08, A22 — Ethereum tranzaksiyalari va hamyonlar
+eth-account==0.14.0
+
+# A09 — PoW grafiklari
+matplotlib==3.11.2
+
+# A19 — on-chain ma'lumotlarni SQL bilan tahlil qilish
+duckdb==2.0.0
+pandas==3.1.0
+
+# A11, A12 — Solidity smart-kontraktlarni mahalliy EVM'da sinash
+# (web3[tester] o'rniga shu paketlar alohida ro'yxatlangan: "tester" ekstrasi
+#  Windows'da hech qachon tayyor wheel'ga ega bo'lmagan safe-pysha3'ni talab qiladi;
+#  bu yerda pycryptodome backend orqali xuddi shu funksionallik ta'minlanadi)
+web3==8.0.0
+py-evm==0.12.1b1
+eth-tester==0.14.0b1
+semantic-version==2.10.0
+py-solc-x==2.0.5
