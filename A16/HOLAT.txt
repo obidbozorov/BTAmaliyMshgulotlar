@@ -1,3 +1,0 @@
-A16: ERC-721 standartidagi NFTlarni yaratish va metama’lumotlarni IPFSda saqlash
-
-Ushbu mavzu bo‘yicha alohida amaliy DOCX qo‘llanma asl BT arxivida mavjud emas. Qo‘shimcha mavzuli slaydlar 06_Qoshimcha_slaydlar papkasida bo‘lishi mumkin.
