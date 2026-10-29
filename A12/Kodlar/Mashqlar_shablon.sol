@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
-// A14 — beshta mashq SHABLONI. Har bir “TODO” ni to'ldiring, kompilyatsiya qiling va Remix VM'da sinang.
+// A12 — beshta mashq SHABLONI. Har bir “TODO” ni to'ldiring, kompilyatsiya qiling va Remix VM'da sinang.
 
 // 1-mashq: hisoblagich
 contract Hisoblagich {

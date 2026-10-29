@@ -1,4 +1,4 @@
-# A6 · 4-skript: nonce navbati — nega bitta “tiqilgan” tx keyingilarini ham to'xtatadi?
+# A7 · 4-skript: nonce navbati — nega bitta “tiqilgan” tx keyingilarini ham to'xtatadi?
 def mempool(hisob_nonce, kelganlar):
     navbat, bajarildi = {}, []
     for n, izoh in kelganlar:

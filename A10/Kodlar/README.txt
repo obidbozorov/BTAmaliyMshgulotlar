@@ -1,4 +1,4 @@
-A11 - PoS validator iqtisodi va konsensus qiyosi
+A10 - PoS validator iqtisodi va konsensus qiyosi
 Ishga tushirish: python 1_validator_iqtisodi.py
                 python 2_konsensus_matrisa.py
                 python 3_validator_sim.py

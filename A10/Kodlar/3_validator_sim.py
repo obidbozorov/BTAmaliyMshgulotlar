@@ -1,4 +1,4 @@
-"""A11 | Bir yillik validator faoliyatini tasodifiy modellashtirish.
+"""A10 | Bir yillik validator faoliyatini tasodifiy modellashtirish.
 O'quv model: ETH protokolining epoch/slot reward qoidalari to'liq aks etmaydi.
 """
 import random

@@ -1,4 +1,4 @@
-# A7 · 3-skript: Bitcoin bloki xeshini o'zimiz hisoblaymiz va explorer bilan solishtiramiz
+# A8 · 3-skript: Bitcoin bloki xeshini o'zimiz hisoblaymiz va explorer bilan solishtiramiz
 import hashlib, struct
 
 def blok_xeshi(versiya, oldingi, merkle, vaqt, bits, nonce):

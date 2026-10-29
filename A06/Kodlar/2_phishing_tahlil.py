@@ -1,4 +1,4 @@
-"""A8 | Tranzaksiya sarlavhalariga asoslangan himoyaviy indikatorlar tahlili.
+"""A6 | Tranzaksiya sarlavhalariga asoslangan himoyaviy indikatorlar tahlili.
 Barcha yozuvlar SUN'IY; manzillar haqiqiy foydalanuvchilarga tegishli emas.
 """
 from dataclasses import dataclass

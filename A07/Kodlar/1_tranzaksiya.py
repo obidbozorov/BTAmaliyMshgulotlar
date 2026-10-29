@@ -1,4 +1,4 @@
-# A6 · 1-skript: EIP-1559 tranzaksiyasi ichida nima bor? (oflayn, tarmoqqa yuborilmaydi)
+# A7 · 1-skript: EIP-1559 tranzaksiyasi ichida nima bor? (oflayn, tarmoqqa yuborilmaydi)
 # O'rnatish: pip install eth-account
 from eth_account import Account
 

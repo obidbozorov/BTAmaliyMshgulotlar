@@ -1,4 +1,4 @@
-A8 - HAMYON XAVFSIZLIGI (faqat o'quv simulyatsiyasi)
+A6 - HAMYON XAVFSIZLIGI (faqat o'quv simulyatsiyasi)
 Ishga tushirish: python 1_ruxsat_modeli.py
                 python 2_phishing_tahlil.py
 Tashqi kutubxona / internet / kalit / seed phrase talab qilinmaydi.

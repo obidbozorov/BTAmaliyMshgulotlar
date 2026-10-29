@@ -1,4 +1,4 @@
-# A13 · ixtiyoriy: Hisob.sol ni mahalliy EVM'da sinash (Remix'dagi qo'lda sinovning avtomatik nusxasi)
+# A11 · ixtiyoriy: Hisob.sol ni mahalliy EVM'da sinash (Remix'dagi qo'lda sinovning avtomatik nusxasi)
 # O'rnatish: pip install "web3[tester]" py-solc-x   ·   ishga tushirish: python test_hisob.py
 import solcx
 from web3 import Web3, EthereumTesterProvider

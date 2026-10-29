@@ -1,4 +1,4 @@
-# A12 · 3-skript: 2_sorovlar.sql dagi so'rovlarni mashq bazasida bajaradi va natijani ko'rsatadi
+# A19 · 3-skript: 2_sorovlar.sql dagi so'rovlarni mashq bazasida bajaradi va natijani ko'rsatadi
 import duckdb, re
 con = duckdb.connect("bt_mashq.duckdb", read_only=True)
 matn = open("2_sorovlar.sql", encoding="utf-8").read()

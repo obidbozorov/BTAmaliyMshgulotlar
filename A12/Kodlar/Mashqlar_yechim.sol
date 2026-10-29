@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
-// A14 — beshta mashqning YECHIMI (o'qituvchi uchun)
+// A12 — beshta mashqning YECHIMI (o'qituvchi uchun)
 
 // 1-mashq: hisoblagich — require va event
 contract Hisoblagich {

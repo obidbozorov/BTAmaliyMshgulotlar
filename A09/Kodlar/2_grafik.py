@@ -1,4 +1,4 @@
-# A10 · 2-skript: qiyinlik–vaqt grafigi (1_mayning.py natijasidan)
+# A9 · 2-skript: qiyinlik–vaqt grafigi (1_mayning.py natijasidan)
 # O'rnatish: pip install matplotlib
 import csv
 import matplotlib; matplotlib.use("Agg")

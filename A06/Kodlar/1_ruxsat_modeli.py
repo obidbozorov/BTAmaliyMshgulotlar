@@ -1,4 +1,4 @@
-"""A8 | ERC-20 approve, allowance, transferFrom va revoke - to'liq oflayn model.
+"""A6 | ERC-20 approve, allowance, transferFrom va revoke - to'liq oflayn model.
 Bu haqiqiy token yoki tarmoq emas; xavfsizlik mashqi uchun soddalashtirilgan model.
 """
 from dataclasses import dataclass, field

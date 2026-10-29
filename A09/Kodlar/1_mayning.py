@@ -1,4 +1,4 @@
-# A10 · 1-skript: PoW mayning modeli — nonce qidiruvi va qiyinlik ta'siri
+# A9 · 1-skript: PoW mayning modeli — nonce qidiruvi va qiyinlik ta'siri
 import hashlib, time, csv, statistics
 
 def xesh(sarlavha: str, nonce: int) -> int:

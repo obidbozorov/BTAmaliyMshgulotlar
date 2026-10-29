@@ -1,4 +1,4 @@
-# A7 · 4-skript: Bitcoin komissiyasi — narx “sat/vB” da, miqdorga emas, hajmga bog'liq
+# A8 · 4-skript: Bitcoin komissiyasi — narx “sat/vB” da, miqdorga emas, hajmga bog'liq
 # SegWit (P2WPKH) tranzaksiya hajmi uchun taxminiy formula: 10,5 + 68·kirish + 31·chiqish vbayt
 def vhajm(kirish, chiqish):
     return 10.5 + 68 * kirish + 31 * chiqish

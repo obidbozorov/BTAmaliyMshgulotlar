@@ -1,10 +1,10 @@
-# A7 · 1-skript: explorer ko'rsatadigan maydonlarni xom tranzaksiyadan o'zimiz ajratamiz
+# A8 · 1-skript: explorer ko'rsatadigan maydonlarni xom tranzaksiyadan o'zimiz ajratamiz
 # O'rnatish: pip install eth-account   (rlp kutubxonasi u bilan birga o'rnatiladi)
 import rlp
 from eth_account import Account
 from Crypto.Hash import keccak
 
-# A6 dagi 1_tranzaksiya.py chiqargan xom tranzaksiya (test kaliti, Sepolia, nonce 0)
+# A7 dagi 1_tranzaksiya.py chiqargan xom tranzaksiya (test kaliti, Sepolia, nonce 0)
 
 def toliq_xom():
     tx = {"type": 2, "chainId": 11155111, "nonce": 0, "to": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",

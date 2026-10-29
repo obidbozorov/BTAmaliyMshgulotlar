@@ -1,4 +1,4 @@
-# A6 · 2-skript: tezlashtirish (speed-up) va bekor qilish (cancel) qanday ishlaydi?
+# A7 · 2-skript: tezlashtirish (speed-up) va bekor qilish (cancel) qanday ishlaydi?
 # Ikkalasi ham — xuddi shu nonce bilan, yuqoriroq komissiyali YANGI tranzaksiya.
 # O'rnatish: pip install eth-account
 from eth_account import Account
