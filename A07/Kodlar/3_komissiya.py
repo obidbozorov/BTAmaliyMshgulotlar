@@ -1,4 +1,4 @@
-# A6 · 3-skript: komissiya qayerga ketadi? (EIP-1559: yoqiladigan qism + choy puli)
+# A7 · 3-skript: komissiya qayerga ketadi? (EIP-1559: yoqiladigan qism + choy puli)
 GWEI = 10**9
 
 def hisobla(gaz, base, tip, max_fee):

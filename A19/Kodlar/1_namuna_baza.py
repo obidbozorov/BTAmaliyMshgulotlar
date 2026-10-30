@@ -1,4 +1,4 @@
-# A12 · 1-skript: Dune'dagi ethereum.transactions jadvaliga o'xshash mashq bazasini yaratadi
+# A19 · 1-skript: Dune'dagi ethereum.transactions jadvaliga o'xshash mashq bazasini yaratadi
 # Ma'lumotlar SUN'IY (tasodifiy) — SQL'ni oflayn mashq qilish uchun. O'rnatish: pip install duckdb
 import duckdb, random, datetime
 

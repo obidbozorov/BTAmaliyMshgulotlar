@@ -1,4 +1,4 @@
-# A9 · 2-skript: M/N sxemasi qancha xavfsiz? Kalit o'g'irlanishi va yo'qolishi ehtimoli
+# A22 · 2-skript: M/N sxemasi qancha xavfsiz? Kalit o'g'irlanishi va yo'qolishi ehtimoli
 from math import comb
 
 def kamida(k, n, p):                       # n tadan kamida k tasi hodisaga uchrashi ehtimoli

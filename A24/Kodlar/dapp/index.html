@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UniChain DApp</title>
+  <style>
+    :root { --asosiy: #3B2FA8; --fon: #F1EEFC; --matn: #1D1B3A; --kulrang: #5F5A7A; --xato: #C0392B; --ok: #1E8449; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--matn); background: #fff; }
+    header { background: var(--asosiy); color: #fff; padding: 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+    header h1 { margin: 0; font-size: 20px; }
+    main { max-width: 760px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+    section { background: var(--fon); border-radius: 10px; padding: 16px; }
+    h2 { margin: 0 0 12px; font-size: 17px; color: var(--asosiy); }
+    button { background: var(--asosiy); color: #fff; border: 0; border-radius: 8px; padding: 10px 16px; font-size: 15px; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    header button { background: #fff; color: var(--asosiy); }
+    input { width: 100%; padding: 10px; border: 1px solid #C9C4E3; border-radius: 8px; font-size: 15px; margin-bottom: 10px; }
+    dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 0; }
+    dt { color: var(--kulrang); } dd { margin: 0; word-break: break-all; font-weight: 600; }
+    #holat { padding: 10px 12px; border-radius: 8px; background: #fff; border-left: 4px solid var(--kulrang); word-break: break-word; }
+    #holat.xato { border-color: var(--xato); color: var(--xato); } #holat.ok { border-color: var(--ok); color: var(--ok); }
+    #jurnal { list-style: none; padding: 0; margin: 0; font-size: 14px; } #jurnal li { padding: 6px 0; border-bottom: 1px solid #DDD8F2; word-break: break-all; }
+    .tarmoq { font-size: 13px; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,.2); }
+    a { color: var(--asosiy); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>UniChain DApp</h1>
+    <span class="tarmoq" id="tarmoq">Tarmoq: —</span>
+    <button id="ulash">Hamyonni ulash</button>
+  </header>
+  <main>
+    <div id="holat">MetaMask'ni ulang. Sahifa http://localhost orqali ochilishi kerak (A5).</div>
+    <section>
+      <h2>Kontrakt</h2>
+      <dl>
+        <dt>Manzil</dt><dd id="manzil">—</dd>
+        <dt>Token</dt><dd id="token">—</dd>
+        <dt>Jami emissiya</dt><dd id="jami">—</dd>
+        <dt>Mening hisobim</dt><dd id="hisob">—</dd>
+        <dt>Mening balansim</dt><dd id="balans">—</dd>
+      </dl>
+    </section>
+    <section>
+      <h2>Token yuborish</h2>
+      <input id="kimga" placeholder="Oluvchi manzili (0x…)" autocomplete="off">
+      <input id="miqdor" placeholder="Miqdor (masalan, 10)" inputmode="decimal" autocomplete="off">
+      <button id="yuborish" disabled>Yuborish</button>
+    </section>
+    <section>
+      <h2>Oxirgi o'tkazmalar (Transfer event)</h2>
+      <ul id="jurnal"><li>—</li></ul>
+    </section>
+  </main>
+  <!-- ethers.js v6: kutubxona versiyasi qat'iy belgilangan -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.5/ethers.umd.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

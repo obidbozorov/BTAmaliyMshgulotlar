@@ -1,4 +1,4 @@
-# A7 · 2-skript: explorer'dagi “Input Data” ni o'qish — funksiya selektori va parametrlar
+# A8 · 2-skript: explorer'dagi “Input Data” ni o'qish — funksiya selektori va parametrlar
 # O'rnatish: pip install pycryptodome
 from Crypto.Hash import keccak
 

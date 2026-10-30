@@ -1,4 +1,4 @@
--- A12 · 2-fayl: beshta asosiy so'rov. DuckDB'da ham, Dune'da ham ishlaydi.
+-- A19 · 2-fayl: beshta asosiy so'rov. DuckDB'da ham, Dune'da ham ishlaydi.
 -- Dune'da jadval nomi: ethereum.transactions (mashq bazasida: ethereum_transactions)
 
 -- [1] Kunlik tranzaksiyalar soni

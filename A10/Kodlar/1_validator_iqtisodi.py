@@ -1,4 +1,4 @@
-"""A11 | Validator iqtisodiyoti, o'quv FARAZLARI asosida.
+"""A10 | Validator iqtisodiyoti, o'quv FARAZLARI asosida.
 Bu Ethereum konsensus protokoli mukofotlarini aniq bashorat qilmaydi.
 Kiritmalarni talaba o'zi tahrirlashi mumkin.
 """

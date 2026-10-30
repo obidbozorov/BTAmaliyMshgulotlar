@@ -1,4 +1,4 @@
-# A10 · 3-skript: Bitcoin qiyinligini qayta hisoblash (har 2016 blokda)
+# A9 · 3-skript: Bitcoin qiyinligini qayta hisoblash (har 2016 blokda)
 # yangi = eski × (kutilgan vaqt / haqiqiy vaqt), o'zgarish 4 barobardan oshmaydi
 KUTILGAN = 2016 * 600                                  # 2 hafta, sekundda
 

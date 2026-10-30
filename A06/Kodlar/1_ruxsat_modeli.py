@@ -1,9 +1,13 @@
-"""A8 | ERC-20 approve, allowance, transferFrom va revoke - to'liq oflayn model.
+"""A6 | ERC-20 approve, allowance, transferFrom va revoke - to'liq oflayn model.
 Bu haqiqiy token yoki tarmoq emas; xavfsizlik mashqi uchun soddalashtirilgan model.
 """
 from dataclasses import dataclass, field
 
 MAX_UINT256 = 2**256 - 1
+
+
+class RadEtildi(Exception):
+    """Solidity'dagi revert/require o'xshashi. assert ishlatilmaydi: python -O uni o'chirib yuboradi."""
 
 @dataclass
 class TestToken:
@@ -11,7 +15,8 @@ class TestToken:
     allowances: dict[tuple[str, str], int] = field(default_factory=dict)
 
     def approve(self, owner: str, spender: str, amount: int):
-        assert 0 <= amount <= MAX_UINT256
+        if not 0 <= amount <= MAX_UINT256:
+            raise RadEtildi("Miqdor uint256 oralig'ida emas")
         self.allowances[(owner, spender)] = amount
         print(f"Approval: owner={owner}, spender={spender}, amount={amount}")
 
@@ -19,10 +24,13 @@ class TestToken:
         return self.allowances.get((owner, spender), 0)
 
     def transfer_from(self, spender: str, owner: str, receiver: str, amount: int):
-        assert amount >= 0
-        assert self.balances.get(owner, 0) >= amount, "Balans yetarli emas"
+        if amount < 0:
+            raise RadEtildi("Miqdor manfiy")
+        if self.balances.get(owner, 0) < amount:
+            raise RadEtildi("Balans yetarli emas")
         permission = self.allowance(owner, spender)
-        assert permission >= amount, "Ruxsat yetarli emas"
+        if permission < amount:
+            raise RadEtildi("Ruxsat yetarli emas")
         self.balances[owner] -= amount
         self.balances[receiver] = self.balances.get(receiver, 0) + amount
         # Ayrim ERC-20 amaliyotlarida maxUint ruxsat kamaytirilmaydi.
@@ -44,7 +52,7 @@ def main():
     token.approve("Talaba", "ShubhaliSpender", 0)
     try:
         token.transfer_from("ShubhaliSpender", "Talaba", "Qabul qiluvchi", 1)
-    except AssertionError as exc:
+    except RadEtildi as exc:
         print("Kutilgan rad javobi:", exc)
     print("Yakuniy balanslar:", token.balances)
 

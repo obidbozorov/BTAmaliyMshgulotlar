@@ -1,4 +1,4 @@
-"""A11 | Vaznli qaror matritsasi: ballar O'QUV EKSPERT BAHOSI, universal fakt emas."""
+"""A10 | Vaznli qaror matritsasi: ballar O'QUV EKSPERT BAHOSI, universal fakt emas."""
 
 MEZONLAR = ["Energiya", "Finality", "Ochiqlik", "Tezlik", "Nosozlikka chidamlilik"]
 # 1=yomonroq, 5=yaxshiroq (barcha mezonda yuqori ball yaxshiroq)

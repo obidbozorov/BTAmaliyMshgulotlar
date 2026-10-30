@@ -1,3 +1,0 @@
-A17: Orakul (oracle) xizmatlari orqali smart-kontraktlarga tashqi ma’lumotlarni integratsiya qilish
-
-Ushbu mavzu bo‘yicha alohida amaliy DOCX qo‘llanma asl BT arxivida mavjud emas. Qo‘shimcha mavzuli slaydlar 06_Qoshimcha_slaydlar papkasida bo‘lishi mumkin.

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/// @title Hisob — A13: birinchi smart-kontrakt (M8 ma'ruzasidagi 4-slayd)
+/// @title Hisob — A11: birinchi smart-kontrakt (M7 ma'ruzasidagi 4-slayd)
 contract Hisob {
     address public egasi;                          // ① holat o'zgaruvchisi
     mapping(address => uint256) public qoldiq;     // ② kalit → qiymat jadvali

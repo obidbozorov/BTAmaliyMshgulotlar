@@ -1,4 +1,4 @@
-# A9 · 1-skript: 2/3 multisig modeli — tranzaksiya faqat yetarli imzo yig'ilganda bajariladi
+# A22 · 1-skript: 2/3 multisig modeli — tranzaksiya faqat yetarli imzo yig'ilganda bajariladi
 # O'rnatish: pip install eth-account
 # Hardhat'ning hammaga ma'lum TEST kalitlari (#0, #1, #2). Real mablag' uchun ishlatmang!
 from eth_account import Account
