@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="uz"><head><meta charset="utf-8"><title>A5 · Hamyon ochish</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:"Times New Roman",serif;max-width:860px;margin:30px auto;padding:0 14px;font-size:18px;line-height:1.45;color:#1d1b29}
+h1{font-size:26px;margin-bottom:4px}h2{font-size:21px;margin:0 0 8px}
+.bosqich{border:1px solid #d9d6ea;border-radius:8px;padding:14px 18px;margin:16px 0;background:#fff}
+.bosqich h2 span{display:inline-block;background:#4b3fa6;color:#fff;border-radius:50%;width:28px;height:28px;text-align:center;line-height:28px;margin-right:8px;font-size:17px}
+.ogoh{background:#fff4e5;border-left:5px solid #e08a00;padding:10px 14px;margin:12px 0}
+.izoh{color:#555;font-size:16px}
+button{font-family:inherit;font-size:17px;padding:8px 14px;margin:6px 6px 6px 0;cursor:pointer;border:1px solid #4b3fa6;background:#4b3fa6;color:#fff;border-radius:5px}
+button.ikk{background:#fff;color:#4b3fa6}
+input,select,textarea{font-family:Consolas,monospace;font-size:16px;padding:6px;border:1px solid #aaa;border-radius:4px}
+textarea{width:100%;box-sizing:border-box}
+code,.mono{font-family:Consolas,monospace;font-size:15px;word-break:break-all}
+pre{background:#f4f3fa;padding:10px 12px;white-space:pre-wrap;word-break:break-all;font-size:15px;margin:6px 0}
+table{border-collapse:collapse;width:100%;margin:6px 0}
+td,th{border:1px solid #d9d6ea;padding:4px 8px;text-align:left;font-size:16px}
+th{background:#f4f3fa}
+.sozlar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}
+.sozlar div{border:1px solid #c8c3e6;border-radius:5px;padding:6px 8px;background:#faf9ff}
+.sozlar b{color:#888;font-weight:normal;margin-right:6px;font-size:14px}
+.cs{color:#c0392b;font-weight:bold}
+.ok{color:#1e8449;font-weight:bold}.yoq{color:#c0392b;font-weight:bold}
+.yashirin{filter:blur(5px);cursor:pointer}
+</style></head>
+<body>
+<h1>A5 · Hamyon ochish: entropiyadan manzilgacha</h1>
+<p class="izoh">MetaMask, Trust Wallet va boshqa hamyonlar "Yangi hamyon yaratish" tugmasi bosilganda ichida aynan shu
+bosqichlarni bajaradi: <b>BIP-39</b> (tiklash iborasi) → <b>BIP-32</b> (HD-hamyon kalitlari daraxti) → <b>BIP-44</b>
+(<code>m/44'/60'/0'/0/i</code> yo'li) → <b>secp256k1</b> (ochiq kalit) → <b>Keccak-256</b> va <b>EIP-55</b> (manzil).
+1–6-bosqichlar internetsiz ishlaydi. Faqat 7-bosqichda (Sepolia) tarmoqqa <b>manzil</b> yuboriladi —
+ibora va shaxsiy kalit hech qachon sahifadan chiqmaydi.</p>
+<div class="ogoh"><b>DIQQAT!</b> Bu sahifa faqat o'quv uchun. Bu yerda yaratilgan ibora va kalitlarda real pul
+saqlamang: brauzer sahifasi xavfsiz kalit saqlash joyi emas. Faqat sinov tarmoqlari (Sepolia va boshqalar) uchun ishlating.</div>
+
+<div class="bosqich"><h2><span>1</span>Entropiya: tasodifiy bitlar</h2>
+<p>Hamyonning butun xavfsizligi shu tasodifiy sondan boshlanadi. Brauzerdagi kriptografik generator
+<code>crypto.getRandomValues()</code> ishlatiladi (oddiy <code>Math.random()</code> emas!).</p>
+<label>Hajm: <select id="hajm"><option value="16">128 bit → 12 so'z</option><option value="32">256 bit → 24 so'z</option></select></label>
+<button id="yangi">🎲 Yangi entropiya</button>
+<button class="ikk" id="nol">Nol entropiya (test vektori)</button>
+<p>Entropiya (hex, o'zingiz ham yozishingiz mumkin):<br><input id="ent" style="width:100%;box-sizing:border-box" spellcheck="false"></p>
+<pre id="entBit"></pre>
+</div>
+
+<div class="bosqich"><h2><span>2</span>Nazorat summasi va 12 (24) so'z — BIP-39</h2>
+<p>SHA-256(entropiya) ning birinchi <b>ENT/32</b> biti (128 bitda 4 bit, 256 bitda 8 bit) oxiriga qo'shiladi.
+Natija 11 bitlik bo'laklarga bo'linadi; har bo'lak 2048 so'zli ro'yxatdagi (2<sup>11</sup> = 2048) bitta so'zning raqami.
+<span class="cs">Qizil</span> bitlar — nazorat summasi.</p>
+<pre id="csInfo"></pre>
+<table id="bolaklar"></table>
+<div class="sozlar" id="sozlar"></div>
+</div>
+
+<div class="bosqich"><h2><span>3</span>Hamyonni tiklash: mavjud iborani kiritish</h2>
+<p>Iborani bilgan har kim hamyonni to'liq tiklay oladi. Bu yerda iborani yozib, nazorat summasini tekshiring.
+Bitta so'zni o'zgartirib ko'ring: ibora odatda yaroqsiz bo'lib qoladi.</p>
+<textarea id="ibora" rows="2" spellcheck="false"></textarea>
+<button id="tikla">Iborani tekshirish va tiklash</button>
+<button class="ikk" id="hardhat">Hardhat test iborasi</button>
+<pre id="iboraHolat"></pre>
+</div>
+
+<div class="bosqich"><h2><span>4</span>Iboradan seed: PBKDF2-HMAC-SHA512, 2048 marta</h2>
+<p>Ixtiyoriy parol (25-so'z) qo'shish mumkin. Bir xil ibora + boshqa parol = butunlay boshqa hamyon.
+Har qanday parol "to'g'ri", shuning uchun parolni unutsangiz hamyonni topib bo'lmaydi.</p>
+<label>Parol (25-so'z): <input id="parol" placeholder="bo'sh qoldirish mumkin" spellcheck="false"></label>
+<pre id="seedInfo"></pre>
+</div>
+
+<div class="bosqich"><h2><span>5</span>Bosh kalit va kalitlar daraxti — BIP-32 / BIP-44</h2>
+<p>HMAC-SHA512(kalit = "Bitcoin seed", seed): chap 32 bayt bosh shaxsiy kalit, o'ng 32 bayt zanjir kodi (chain code).
+Undan yo'l bo'yicha bola kalitlar hosil qilinadi. <code>'</code> belgisi qattiq (hardened) hosilani bildiradi.</p>
+<pre id="masterInfo"></pre>
+<table><tr><th>Yo'l qismi</th><th>Ma'nosi</th></tr>
+<tr><td><code>m</code></td><td>bosh kalit (seed'dan)</td></tr>
+<tr><td><code>44'</code></td><td>maqsad: BIP-44 standarti</td></tr>
+<tr><td><code>60'</code></td><td>tanga turi: Ethereum (Bitcoin = 0')</td></tr>
+<tr><td><code>0'</code></td><td>hisob (account)</td></tr>
+<tr><td><code>0</code></td><td>tashqi zanjir (qabul qilish manzillari)</td></tr>
+<tr><td><code>i</code></td><td>manzil tartib raqami: MetaMask'dagi "Account 1, 2, 3…"</td></tr></table>
+</div>
+
+<div class="bosqich"><h2><span>6</span>Manzillar: secp256k1 → Keccak-256 → EIP-55</h2>
+<p>Shaxsiy kalit <i>k</i> → ochiq kalit <i>K = k·G</i> (64 bayt) → Keccak-256(K) ning oxirgi 20 bayti → manzil.
+EIP-55: Keccak(manzil) ning mos 16-lik raqami ≥ 8 bo'lsa harf katta yoziladi (nusxalashdagi xatoni ushlaydi).
+Shaxsiy kalitni ko'rish uchun xira yozuv ustiga bosing.</p>
+<label>Nechta manzil: <input id="soni" type="number" min="1" max="20" value="5" style="width:70px"></label>
+<button id="hisobla">Manzillarni hisoblash</button>
+<table id="manzillar"></table>
+<div class="ogoh">Tekshirish: MetaMask'da <b>alohida sinov profili</b> oching, "Import an existing wallet" orqali shu iborani
+kiriting. Account 1 manzili jadvaldagi <code>i = 0</code> manzil bilan bir xil bo'lishi kerak.</div>
+</div>
+
+<div class="bosqich"><h2><span>7</span>Sepolia sinov tarmog'iga ulanish</h2>
+<p><b>Sepolia</b> — Ethereum'ning rasmiy sinov tarmog'i (chainId = 11155111 = <code>0xaa36a7</code>). Undagi ETH tekin va
+qiymatsiz, kranlardan (faucet) olinadi. Ulanishning ikki yo'li bor:</p>
+<p><b>7a. To'g'ridan-to'g'ri RPC orqali</b> (MetaMask shart emas): sahifa JSON-RPC so'rovlarini ommaviy Sepolia tuguniga
+yuboradi va 6-bosqichdagi manzillar balansini o'qiydi.</p>
+<label>RPC manzili: <select id="rpc" style="max-width:100%">
+<option>https://ethereum-sepolia-rpc.publicnode.com</option>
+<option>https://sepolia.drpc.org</option>
+<option>https://1rpc.io/sepolia</option>
+</select></label>
+<button id="rpcUlan">Sepolia'ga ulanish</button>
+<pre id="rpcInfo">Ulanish natijasi shu yerda chiqadi…</pre>
+<table id="balanslar"></table>
+<p><b>7b. MetaMask orqali</b>: Sepolia tarmog'ini hamyonga qo'shish yoki unga o'tish (EIP-3085, EIP-3326) va ulangan hisobni
+jadvaldagi manzillar bilan solishtirish.</p>
+<button id="mmUlan">🦊 MetaMask'ni ulash va Sepolia'ga o'tish</button>
+<button class="ikk" id="mmBalans">MetaMask balansini yangilash</button>
+<pre id="mmInfo">MetaMask natijasi shu yerda chiqadi…</pre>
+<p class="izoh">Sinov ETH olish (kranlar; manzil, ba'zan ro'yxatdan o'tish talab qilinadi):
+<a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia" target="_blank" rel="noopener">Google Cloud faucet</a> ·
+<a href="https://www.alchemy.com/faucets/ethereum-sepolia" target="_blank" rel="noopener">Alchemy faucet</a> ·
+<a href="https://sepolia-faucet.pk910.de" target="_blank" rel="noopener">PoW faucet (pk910)</a>.
+ETH kelgach "Sepolia'ga ulanish" tugmasini qayta bosing va tranzaksiyani
+<a href="https://sepolia.etherscan.io" target="_blank" rel="noopener">sepolia.etherscan.io</a> da ko'ring.</p>
+</div>
+
+<div class="bosqich"><h2><span>✓</span>O'z-o'zini tekshirish (rasmiy test vektorlari)</h2>
+<button class="ikk" id="selftest">Testlarni ishga tushirish</button>
+<pre id="testNatija">Sahifadagi algoritmlar standart natijalar bilan solishtiriladi.</pre>
+</div>
+
+<div class="bosqich"><h2><span>?</span>Topshiriqlar</h2>
+<ol>
+<li>12 so'zli yangi hamyon oching. Nazorat summasi necha bit? Oxirgi so'zning nechta biti entropiyadan, nechtasi nazorat summasidan?</li>
+<li>Iborada ikki so'zning o'rnini almashtiring. Ibora yaroqli bo'lib qoldimi? Nima uchun ba'zan yaroqli chiqadi? (ehtimollik 1/16)</li>
+<li>Bir xil iboraga "PROFI" parolini qo'shing. <code>i = 0</code> manzil qanday o'zgardi? <code>2_hd_hamyon.py</code> natijasi bilan solishtiring.</li>
+<li>Manzildagi bitta harfning registrini o'zgartirib, <code>3_manzil_tekshir.py</code> bilan tekshiring.</li>
+<li>Sepolia'ga ulaning: oxirgi blok raqami nechchi? Kran orqali <code>i = 0</code> manzilga sinov ETH oling va balans o'zgarganini ko'rsating.</li>
+<li>MetaMask'da tanlangan hisob jadvaldagi qaysi <code>i</code> ga to'g'ri keldi? Account 2 ni qo'shsangiz-chi?</li>
+<li>Nima uchun 12 so'zli iborani kuch bilan topish (2<sup>128</sup> variant) amalda imkonsiz?</li>
+</ol>
+</div>
+
+<script>
+"use strict";
+const SOZLAR = "abandon ability able about above absent absorb abstract absurd abuse access accident account accuse achieve acid acoustic acquire across act action actor actress actual adapt add addict address adjust admit adult advance advice aerobic affair afford afraid again age agent agree ahead aim air airport aisle alarm album alcohol alert alien all alley allow almost alone alpha already also alter always amateur amazing among amount amused analyst anchor ancient anger angle angry animal ankle announce annual another answer antenna antique anxiety any apart apology appear apple approve april arch arctic area arena argue arm armed armor army around arrange arrest arrive arrow art artefact artist artwork ask aspect assault asset assist assume asthma athlete atom attack attend attitude attract auction audit august aunt author auto autumn average avocado avoid awake aware away awesome awful awkward axis baby bachelor bacon badge bag balance balcony ball bamboo banana banner bar barely bargain barrel base basic basket battle beach bean beauty because become beef before begin behave behind believe below belt bench benefit best betray better between beyond bicycle bid bike bind biology bird birth bitter black blade blame blanket blast bleak bless blind blood blossom blouse blue blur blush board boat body boil bomb bone bonus book boost border boring borrow boss bottom bounce box boy bracket brain brand brass brave bread breeze brick bridge brief bright bring brisk broccoli broken bronze broom brother brown brush bubble buddy budget buffalo build bulb bulk bullet bundle bunker burden burger burst bus business busy butter buyer buzz cabbage cabin cable cactus cage cake call calm camera camp can canal cancel candy cannon canoe canvas canyon capable capital captain car carbon card cargo carpet carry cart case cash casino castle casual cat catalog catch category cattle caught cause caution cave ceiling celery cement census century cereal certain chair chalk champion change chaos chapter charge chase chat cheap check cheese chef cherry chest chicken chief child chimney choice choose chronic chuckle chunk churn cigar cinnamon circle citizen city civil claim clap clarify claw clay clean clerk clever click client cliff climb clinic clip clock clog close cloth cloud clown club clump cluster clutch coach coast coconut code coffee coil coin collect color column combine come comfort comic common company concert conduct confirm congress connect consider control convince cook cool copper copy coral core corn correct cost cotton couch country couple course cousin cover coyote crack cradle craft cram crane crash crater crawl crazy cream credit creek crew cricket crime crisp critic crop cross crouch crowd crucial cruel cruise crumble crunch crush cry crystal cube culture cup cupboard curious current curtain curve cushion custom cute cycle dad damage damp dance danger daring dash daughter dawn day deal debate debris decade december decide decline decorate decrease deer defense define defy degree delay deliver demand demise denial dentist deny depart depend deposit depth deputy derive describe desert design desk despair destroy detail detect develop device devote diagram dial diamond diary dice diesel diet differ digital dignity dilemma dinner dinosaur direct dirt disagree discover disease dish dismiss disorder display distance divert divide divorce dizzy doctor document dog doll dolphin domain donate donkey donor door dose double dove draft dragon drama drastic draw dream dress drift drill drink drip drive drop drum dry duck dumb dune during dust dutch duty dwarf dynamic eager eagle early earn earth easily east easy echo ecology economy edge edit educate effort egg eight either elbow elder electric elegant element elephant elevator elite else embark embody embrace emerge emotion employ empower empty enable enact end endless endorse enemy energy enforce engage engine enhance enjoy enlist enough enrich enroll ensure enter entire entry envelope episode equal equip era erase erode erosion error erupt escape essay essence estate eternal ethics evidence evil evoke evolve exact example excess exchange excite exclude excuse execute exercise exhaust exhibit exile exist exit exotic expand expect expire explain expose express extend extra eye eyebrow fabric face faculty fade faint faith fall false fame family famous fan fancy fantasy farm fashion fat fatal father fatigue fault favorite feature february federal fee feed feel female fence festival fetch fever few fiber fiction field figure file film filter final find fine finger finish fire firm first fiscal fish fit fitness fix flag flame flash flat flavor flee flight flip float flock floor flower fluid flush fly foam focus fog foil fold follow food foot force forest forget fork fortune forum forward fossil foster found fox fragile frame frequent fresh friend fringe frog front frost frown frozen fruit fuel fun funny furnace fury future gadget gain galaxy gallery game gap garage garbage garden garlic garment gas gasp gate gather gauge gaze general genius genre gentle genuine gesture ghost giant gift giggle ginger giraffe girl give glad glance glare glass glide glimpse globe gloom glory glove glow glue goat goddess gold good goose gorilla gospel gossip govern gown grab grace grain grant grape grass gravity great green grid grief grit grocery group grow grunt guard guess guide guilt guitar gun gym habit hair half hammer hamster hand happy harbor hard harsh harvest hat have hawk hazard head health heart heavy hedgehog height hello helmet help hen hero hidden high hill hint hip hire history hobby hockey hold hole holiday hollow home honey hood hope horn horror horse hospital host hotel hour hover hub huge human humble humor hundred hungry hunt hurdle hurry hurt husband hybrid ice icon idea identify idle ignore ill illegal illness image imitate immense immune impact impose improve impulse inch include income increase index indicate indoor industry infant inflict inform inhale inherit initial inject injury inmate inner innocent input inquiry insane insect inside inspire install intact interest into invest invite involve iron island isolate issue item ivory jacket jaguar jar jazz jealous jeans jelly jewel job join joke journey joy judge juice jump jungle junior junk just kangaroo keen keep ketchup key kick kid kidney kind kingdom kiss kit kitchen kite kitten kiwi knee knife knock know lab label labor ladder lady lake lamp language laptop large later latin laugh laundry lava law lawn lawsuit layer lazy leader leaf learn leave lecture left leg legal legend leisure lemon lend length lens leopard lesson letter level liar liberty library license life lift light like limb limit link lion liquid list little live lizard load loan lobster local lock logic lonely long loop lottery loud lounge love loyal lucky luggage lumber lunar lunch luxury lyrics machine mad magic magnet maid mail main major make mammal man manage mandate mango mansion manual maple marble march margin marine market marriage mask mass master match material math matrix matter maximum maze meadow mean measure meat mechanic medal media melody melt member memory mention menu mercy merge merit merry mesh message metal method middle midnight milk million mimic mind minimum minor minute miracle mirror misery miss mistake mix mixed mixture mobile model modify mom moment monitor monkey monster month moon moral more morning mosquito mother motion motor mountain mouse move movie much muffin mule multiply muscle museum mushroom music must mutual myself mystery myth naive name napkin narrow nasty nation nature near neck need negative neglect neither nephew nerve nest net network neutral never news next nice night noble noise nominee noodle normal north nose notable note nothing notice novel now nuclear number nurse nut oak obey object oblige obscure observe obtain obvious occur ocean october odor off offer office often oil okay old olive olympic omit once one onion online only open opera opinion oppose option orange orbit orchard order ordinary organ orient original orphan ostrich other outdoor outer output outside oval oven over own owner oxygen oyster ozone pact paddle page pair palace palm panda panel panic panther paper parade parent park parrot party pass patch path patient patrol pattern pause pave payment peace peanut pear peasant pelican pen penalty pencil people pepper perfect permit person pet phone photo phrase physical piano picnic picture piece pig pigeon pill pilot pink pioneer pipe pistol pitch pizza place planet plastic plate play please pledge pluck plug plunge poem poet point polar pole police pond pony pool popular portion position possible post potato pottery poverty powder power practice praise predict prefer prepare present pretty prevent price pride primary print priority prison private prize problem process produce profit program project promote proof property prosper protect proud provide public pudding pull pulp pulse pumpkin punch pupil puppy purchase purity purpose purse push put puzzle pyramid quality quantum quarter question quick quit quiz quote rabbit raccoon race rack radar radio rail rain raise rally ramp ranch random range rapid rare rate rather raven raw razor ready real reason rebel rebuild recall receive recipe record recycle reduce reflect reform refuse region regret regular reject relax release relief rely remain remember remind remove render renew rent reopen repair repeat replace report require rescue resemble resist resource response result retire retreat return reunion reveal review reward rhythm rib ribbon rice rich ride ridge rifle right rigid ring riot ripple risk ritual rival river road roast robot robust rocket romance roof rookie room rose rotate rough round route royal rubber rude rug rule run runway rural sad saddle sadness safe sail salad salmon salon salt salute same sample sand satisfy satoshi sauce sausage save say scale scan scare scatter scene scheme school science scissors scorpion scout scrap screen script scrub sea search season seat second secret section security seed seek segment select sell seminar senior sense sentence series service session settle setup seven shadow shaft shallow share shed shell sheriff shield shift shine ship shiver shock shoe shoot shop short shoulder shove shrimp shrug shuffle shy sibling sick side siege sight sign silent silk silly silver similar simple since sing siren sister situate six size skate sketch ski skill skin skirt skull slab slam sleep slender slice slide slight slim slogan slot slow slush small smart smile smoke smooth snack snake snap sniff snow soap soccer social sock soda soft solar soldier solid solution solve someone song soon sorry sort soul sound soup source south space spare spatial spawn speak special speed spell spend sphere spice spider spike spin spirit split spoil sponsor spoon sport spot spray spread spring spy square squeeze squirrel stable stadium staff stage stairs stamp stand start state stay steak steel stem step stereo stick still sting stock stomach stone stool story stove strategy street strike strong struggle student stuff stumble style subject submit subway success such sudden suffer sugar suggest suit summer sun sunny sunset super supply supreme sure surface surge surprise surround survey suspect sustain swallow swamp swap swarm swear sweet swift swim swing switch sword symbol symptom syrup system table tackle tag tail talent talk tank tape target task taste tattoo taxi teach team tell ten tenant tennis tent term test text thank that theme then theory there they thing this thought three thrive throw thumb thunder ticket tide tiger tilt timber time tiny tip tired tissue title toast tobacco today toddler toe together toilet token tomato tomorrow tone tongue tonight tool tooth top topic topple torch tornado tortoise toss total tourist toward tower town toy track trade traffic tragic train transfer trap trash travel tray treat tree trend trial tribe trick trigger trim trip trophy trouble truck true truly trumpet trust truth try tube tuition tumble tuna tunnel turkey turn turtle twelve twenty twice twin twist two type typical ugly umbrella unable unaware uncle uncover under undo unfair unfold unhappy uniform unique unit universe unknown unlock until unusual unveil update upgrade uphold upon upper upset urban urge usage use used useful useless usual utility vacant vacuum vague valid valley valve van vanish vapor various vast vault vehicle velvet vendor venture venue verb verify version very vessel veteran viable vibrant vicious victory video view village vintage violin virtual virus visa visit visual vital vivid vocal voice void volcano volume vote voyage wage wagon wait walk wall walnut want warfare warm warrior wash wasp waste water wave way wealth weapon wear weasel weather web wedding weekend weird welcome west wet whale what wheat wheel when where whip whisper wide width wife wild will win window wine wing wink winner winter wire wisdom wise wish witness wolf woman wonder wood wool word work world worry worth wrap wreck wrestle wrist write wrong yard year yellow you young youth zebra zero zone zoo".split(" ");
+const $ = id => document.getElementById(id);
+const enc = new TextEncoder();
+
+// ---------- yordamchi funksiyalar ----------
+const hex = b => Array.from(b, x => x.toString(16).padStart(2, "0")).join("");
+const unhex = h => new Uint8Array((h.match(/../g) || []).map(x => parseInt(x, 16)));
+const bitlar = b => Array.from(b, x => x.toString(2).padStart(8, "0")).join("");
+const bigdan = (n, len = 32) => unhex(n.toString(16).padStart(len * 2, "0"));
+const bigga = b => BigInt("0x" + (hex(b) || "0"));
+const ulash = (...a) => { const r = new Uint8Array(a.reduce((s, x) => s + x.length, 0)); let o = 0; for (const x of a) { r.set(x, o); o += x.length; } return r; };
+const int32 = i => new Uint8Array([i >>> 24, (i >>> 16) & 255, (i >>> 8) & 255, i & 255]);
+
+// ---------- SHA-256, HMAC-SHA512, PBKDF2 (brauzerning WebCrypto API si) ----------
+const sha256 = async d => new Uint8Array(await crypto.subtle.digest("SHA-256", d));
+async function hmac512(kalit, data) {
+  const k = await crypto.subtle.importKey("raw", kalit, { name: "HMAC", hash: "SHA-512" }, false, ["sign"]);
+  return new Uint8Array(await crypto.subtle.sign("HMAC", k, data));
+}
+async function pbkdf2(parol, tuz) {
+  const k = await crypto.subtle.importKey("raw", parol, "PBKDF2", false, ["deriveBits"]);
+  return new Uint8Array(await crypto.subtle.deriveBits({ name: "PBKDF2", salt: tuz, iterations: 2048, hash: "SHA-512" }, k, 512));
+}
+
+// ---------- Keccak-256 (Ethereum xeshi; SHA3-256 dan to'ldirish bayti bilan farq qiladi) ----------
+const M64 = (1n << 64n) - 1n;
+const RC = [0x1n,0x8082n,0x800000000000808an,0x8000000080008000n,0x808bn,0x80000001n,0x8000000080008081n,0x8000000000008009n,
+  0x8an,0x88n,0x80008009n,0x8000000an,0x8000808bn,0x800000000000008bn,0x8000000000008089n,0x8000000000008003n,
+  0x8000000000008002n,0x8000000000000080n,0x800an,0x800000008000000an,0x8000000080008081n,0x8000000000008080n,0x80000001n,0x8000000080008008n];
+const ROT = [0,1,62,28,27, 36,44,6,55,20, 3,10,43,25,39, 41,45,15,21,8, 18,2,61,56,14];
+const rotl = (v, n) => n === 0 ? v : ((v << BigInt(n)) | (v >> BigInt(64 - n))) & M64;
+function keccakF(A) {
+  for (let r = 0; r < 24; r++) {
+    const C = [0,1,2,3,4].map(x => A[x] ^ A[x+5] ^ A[x+10] ^ A[x+15] ^ A[x+20]);
+    for (let x = 0; x < 5; x++) { const D = C[(x+4)%5] ^ rotl(C[(x+1)%5], 1); for (let y = 0; y < 25; y += 5) A[x+y] ^= D; }
+    const B = new Array(25);
+    for (let x = 0; x < 5; x++) for (let y = 0; y < 5; y++) B[y + 5*((2*x + 3*y) % 5)] = rotl(A[x + 5*y], ROT[x + 5*y]);
+    for (let y = 0; y < 25; y += 5) for (let x = 0; x < 5; x++) A[x+y] = B[x+y] ^ ((~B[(x+1)%5+y] & M64) & B[(x+2)%5+y]);
+    A[0] ^= RC[r];
+  }
+}
+function keccak256(data) {
+  const RATE = 136, uz = Math.floor(data.length / RATE + 1) * RATE;
+  const p = new Uint8Array(uz); p.set(data); p[data.length] ^= 0x01; p[uz - 1] ^= 0x80;
+  const A = new Array(25).fill(0n);
+  for (let o = 0; o < uz; o += RATE) {
+    for (let i = 0; i < RATE / 8; i++) { let v = 0n; for (let j = 7; j >= 0; j--) v = (v << 8n) | BigInt(p[o + i*8 + j]); A[i] ^= v; }
+    keccakF(A);
+  }
+  const out = new Uint8Array(32);
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 8; j++) out[i*8 + j] = Number((A[i] >> BigInt(8*j)) & 255n);
+  return out;
+}
+
+// ---------- secp256k1 elliptik egri chizig'i: y² = x³ + 7 (mod P) ----------
+const P = 2n ** 256n - 2n ** 32n - 977n;
+const N = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n;
+const G = [0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798n,
+           0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8n];
+const mod = (a, m = P) => ((a % m) + m) % m;
+function teskari(a, m = P) { let [x0, x1, r0, r1] = [0n, 1n, m, mod(a, m)]; while (r1) { const q = r0 / r1; [x0, x1] = [x1, x0 - q*x1]; [r0, r1] = [r1, r0 - q*r1]; } return mod(x0, m); }
+function qosh(p, q) {
+  if (!p) return q; if (!q) return p;
+  if (p[0] === q[0] && mod(p[1] + q[1]) === 0n) return null;
+  const l = p[0] === q[0] ? mod(3n * p[0] * p[0] * teskari(2n * p[1])) : mod((q[1] - p[1]) * teskari(q[0] - p[0]));
+  const x = mod(l * l - p[0] - q[0]);
+  return [x, mod(l * (p[0] - x) - p[1])];
+}
+function kopaytir(k, pt = G) { let r = null; while (k > 0n) { if (k & 1n) r = qosh(r, pt); pt = qosh(pt, pt); k >>= 1n; } return r; }
+const ochiqKalit = k => kopaytir(k);
+const siqilgan = K => ulash(new Uint8Array([K[1] & 1n ? 3 : 2]), bigdan(K[0]));
+
+// ---------- BIP-39 ----------
+async function entropiyadanIbora(ent) {
+  const cs = bitlar(await sha256(ent)).slice(0, ent.length * 8 / 32);
+  const hammasi = bitlar(ent) + cs;
+  const bolak = [];
+  for (let i = 0; i < hammasi.length; i += 11) bolak.push(hammasi.slice(i, i + 11));
+  return { cs, bolak, sozlar: bolak.map(b => SOZLAR[parseInt(b, 2)]) };
+}
+async function iboraniTekshir(ibora) {
+  const s = ibora.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (![12, 15, 18, 21, 24].includes(s.length)) return { xato: `So'zlar soni ${s.length} ta: 12, 15, 18, 21 yoki 24 bo'lishi kerak` };
+  const notanish = s.filter(x => !SOZLAR.includes(x));
+  if (notanish.length) return { xato: "BIP-39 ro'yxatida yo'q so'z(lar): " + notanish.join(", ") };
+  const b = s.map(x => SOZLAR.indexOf(x).toString(2).padStart(11, "0")).join("");
+  const entBit = b.length * 32 / 33;
+  const ent = unhex(BigInt("0b" + b.slice(0, entBit)).toString(16).padStart(entBit / 4, "0"));
+  const kerak = bitlar(await sha256(ent)).slice(0, b.length - entBit);
+  return { sozlar: s, ent, bor: b.slice(entBit), kerak, togri: kerak === b.slice(entBit) };
+}
+const iboraSeed = (ibora, parol = "") =>
+  pbkdf2(enc.encode(ibora.normalize("NFKD")), enc.encode(("mnemonic" + parol).normalize("NFKD")));
+
+// ---------- BIP-32 / BIP-44 ----------
+async function boshKalit(seed) { const I = await hmac512(enc.encode("Bitcoin seed"), seed); return { k: bigga(I.slice(0, 32)), c: I.slice(32) }; }
+async function bola({ k, c }, i) {
+  const data = i >= 0x80000000 ? ulash(new Uint8Array([0]), bigdan(k), int32(i))   // qattiq (')
+                                : ulash(siqilgan(ochiqKalit(k)), int32(i));       // oddiy
+  const I = await hmac512(c, data);
+  return { k: mod(bigga(I.slice(0, 32)) + k, N), c: I.slice(32) };
+}
+async function yolBoyicha(tugun, yol) {
+  for (const q of yol.split("/").slice(1)) tugun = await bola(tugun, parseInt(q) + (q.endsWith("'") ? 0x80000000 : 0));
+  return tugun;
+}
+
+// ---------- Ethereum manzili ----------
+function eip55(a) { const h = hex(keccak256(enc.encode(a))); return "0x" + [...a].map((c, i) => parseInt(h[i], 16) >= 8 ? c.toUpperCase() : c).join(""); }
+function ethManzil(k) { const K = ochiqKalit(k); return eip55(hex(keccak256(ulash(bigdan(K[0]), bigdan(K[1])))).slice(-40)); }
+
+// ---------- sahifa mantig'i ----------
+const holat = { ibora: "" };
+async function entropiyaKorsat() {
+  const h = $("ent").value.trim().toLowerCase().replace(/^0x/, "");
+  if (!/^[0-9a-f]*$/.test(h) || ![32, 40, 48, 56, 64].includes(h.length)) {
+    $("entBit").textContent = "Entropiya 32, 40, 48, 56 yoki 64 ta 16-lik belgi (128–256 bit) bo'lishi kerak."; return;
+  }
+  const ent = unhex(h), { cs, bolak, sozlar } = await entropiyadanIbora(ent);
+  $("entBit").textContent = `${ent.length * 8} bit:\n` + bitlar(ent).match(/.{1,64}/g).join("\n");
+  $("csInfo").innerHTML = `SHA-256(entropiya) = ${hex(await sha256(ent))}\nNazorat summasi (${cs.length} bit) = <span class="cs">${cs}</span>`;
+  const entBitSoni = ent.length * 8;
+  $("bolaklar").innerHTML = "<tr><th>№</th><th>11 bit</th><th>Raqam</th><th>So'z</th></tr>" + bolak.map((b, i) => {
+    const bosh = i * 11, cheg = Math.max(0, entBitSoni - bosh);
+    const kor = cheg >= 11 ? b : b.slice(0, cheg) + `<span class="cs">${b.slice(cheg)}</span>`;
+    return `<tr><td>${i + 1}</td><td class="mono">${kor}</td><td>${parseInt(b, 2)}</td><td><b>${sozlar[i]}</b></td></tr>`;
+  }).join("");
+  $("sozlar").innerHTML = sozlar.map((s, i) => `<div><b>${i + 1}.</b>${s}</div>`).join("");
+  $("ibora").value = sozlar.join(" ");
+  await tikla();
+}
+async function tikla() {
+  const r = await iboraniTekshir($("ibora").value);
+  if (r.xato) { $("iboraHolat").innerHTML = `<span class="yoq">✗ ${r.xato}</span>`; return; }
+  $("iboraHolat").innerHTML = `So'zlar: ${r.sozlar.length} ta, entropiya: ${hex(r.ent)}\n` +
+    `Nazorat summasi: iborada ${r.bor}, kerak ${r.kerak} → ` +
+    (r.togri ? `<span class="ok">✓ ibora yaroqli</span>` : `<span class="yoq">✗ ibora yaroqsiz (xato yozilgan yoki so'z almashgan)</span>`);
+  holat.ibora = r.togri ? r.sozlar.join(" ") : "";
+  if (r.togri) await hisobla(); else { $("seedInfo").textContent = $("masterInfo").textContent = ""; $("manzillar").innerHTML = ""; }
+}
+async function hisobla() {
+  if (!holat.ibora) return;
+  $("manzillar").innerHTML = "<tr><td>Hisoblanmoqda…</td></tr>";
+  await new Promise(r => setTimeout(r, 20));
+  const t0 = performance.now();
+  const seed = await iboraSeed(holat.ibora, $("parol").value);
+  $("seedInfo").textContent = `Parol: ${$("parol").value ? `"${$("parol").value}"` : "(yo'q)"}\nTuz (salt) = "mnemonic${$("parol").value}"\n` +
+    `Seed (64 bayt) = ${hex(seed)}\nVaqt: ${(performance.now() - t0).toFixed(1)} ms (2048 marta HMAC-SHA512)`;
+  const m = await boshKalit(seed);
+  $("masterInfo").textContent = `Bosh shaxsiy kalit = ${hex(bigdan(m.k))}\nZanjir kodi        = ${hex(m.c)}`;
+  const hisob = await yolBoyicha(m, "m/44'/60'/0'/0");
+  const n = Math.min(20, Math.max(1, +$("soni").value || 1));
+  let qatorlar = "<tr><th>i</th><th>Yo'l</th><th>Manzil (EIP-55)</th><th>Shaxsiy kalit</th></tr>";
+  for (let i = 0; i < n; i++) {
+    const t = await bola(hisob, i);
+    qatorlar += `<tr><td>${i}</td><td class="mono">m/44'/60'/0'/0/${i}</td><td class="mono">${ethManzil(t.k)}</td>` +
+      `<td class="mono yashirin" title="Ko'rish uchun bosing" onclick="this.classList.toggle('yashirin')">0x${hex(bigdan(t.k))}</td></tr>`;
+  }
+  $("manzillar").innerHTML = qatorlar;
+  holat.manzillar = [...$("manzillar").querySelectorAll("tr td:nth-child(3)")].map(td => td.textContent);
+  $("balanslar").innerHTML = "";
+}
+
+// ---------- Sepolia: JSON-RPC ----------
+const SEPOLIA = { chainId: "0xaa36a7", chainName: "Sepolia",
+  nativeCurrency: { name: "Sepolia Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: ["https://ethereum-sepolia-rpc.publicnode.com"], blockExplorerUrls: ["https://sepolia.etherscan.io"] };
+let rpcId = 0;
+async function rpc(method, params = []) {
+  const javob = await fetch($("rpc").value, { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: ++rpcId, method, params }) });
+  const j = await javob.json();
+  if (j.error) throw new Error(`${method}: ${j.error.message}`);
+  return j.result;
+}
+const ethda = wei => { const s = wei.toString().padStart(19, "0"); return (s.slice(0, -18) + "." + s.slice(-18)).replace(/\.?0+$/, ""); };
+async function rpcUlan() {
+  $("rpcInfo").textContent = "Ulanmoqda: " + $("rpc").value + " …";
+  const t0 = performance.now();
+  const [id, blok, gaz] = await Promise.all([rpc("eth_chainId"), rpc("eth_blockNumber"), rpc("eth_gasPrice")]);
+  const ms = (performance.now() - t0).toFixed(0);
+  $("rpcInfo").innerHTML = `Tugun: ${$("rpc").value}  (${ms} ms)\n` +
+    `chainId: ${parseInt(id, 16)} (${id}) → ${id === SEPOLIA.chainId ? '<span class="ok">✓ Sepolia</span>' : '<span class="yoq">✗ bu Sepolia emas!</span>'}\n` +
+    `Oxirgi blok: ${parseInt(blok, 16)}\nGaz narxi: ${+(Number(BigInt(gaz)) / 1e9).toPrecision(4)} gwei`;
+  if (!holat.manzillar?.length) { $("balanslar").innerHTML = "<tr><td>Avval 6-bosqichda manzillarni hisoblang</td></tr>"; return; }
+  const qatorlar = await Promise.all(holat.manzillar.map(async (m, i) => {
+    const [b, n] = await Promise.all([rpc("eth_getBalance", [m, "latest"]), rpc("eth_getTransactionCount", [m, "latest"])]);
+    return `<tr><td>${i}</td><td class="mono"><a href="https://sepolia.etherscan.io/address/${m}" target="_blank" rel="noopener">${m}</a></td>` +
+      `<td>${ethda(BigInt(b))} ETH</td><td>${parseInt(n, 16)}</td></tr>`;
+  }));
+  $("balanslar").innerHTML = "<tr><th>i</th><th>Manzil (Etherscan'da ochish)</th><th>Balans</th><th>Nonce (yuborilgan tx)</th></tr>" + qatorlar.join("");
+}
+
+// ---------- Sepolia: MetaMask (EIP-1193, EIP-3085, EIP-3326) ----------
+const mm = () => { if (!window.ethereum) throw new Error("MetaMask topilmadi. Uni o'rnating va sahifani http://localhost orqali oching (file:// da kengaytma ishlamasligi mumkin)."); return window.ethereum; };
+async function mmUlan() {
+  const [hisob] = await mm().request({ method: "eth_requestAccounts" });
+  try { await mm().request({ method: "wallet_switchEthereumChain", params: [{ chainId: SEPOLIA.chainId }] }); }
+  catch (e) {
+    if (e.code !== 4902) throw e;                 // 4902 — tarmoq hamyonda hali yo'q
+    await mm().request({ method: "wallet_addEthereumChain", params: [SEPOLIA] });
+  }
+  await mmBalans(hisob);
+}
+async function mmBalans(hisob) {
+  hisob = hisob || (await mm().request({ method: "eth_accounts" }))[0];
+  if (!hisob) { $("mmInfo").textContent = "Avval MetaMask'ni ulang"; return; }
+  const id = await mm().request({ method: "eth_chainId" });
+  const wei = BigInt(await mm().request({ method: "eth_getBalance", params: [hisob, "latest"] }));
+  const i = (holat.manzillar || []).findIndex(m => m.toLowerCase() === hisob.toLowerCase());
+  $("mmInfo").innerHTML = `Hisob: ${eip55(hisob.toLowerCase().slice(2))}\n` +
+    `Tarmoq: chainId ${parseInt(id, 16)} ${id === SEPOLIA.chainId ? '<span class="ok">✓ Sepolia</span>' : '<span class="yoq">(Sepolia emas)</span>'}\n` +
+    `Balans: ${ethda(wei)} ETH\n` +
+    (i >= 0 ? `<span class="ok">✓ Bu hisob jadvaldagi i = ${i} manzil — ibora to'g'ri import qilingan</span>`
+            : `Bu hisob 6-bosqich jadvalida yo'q (boshqa ibora yoki parol bilan yaratilgan)`);
+}
+if (window.ethereum?.on) { ethereum.on("chainChanged", () => mmBalans().catch(() => {})); ethereum.on("accountsChanged", () => mmBalans().catch(() => {})); }
+async function selfTest() {
+  const tst = [];
+  const t = (nomi, olingan, kutilgan) => tst.push(`${olingan === kutilgan ? "✓" : "✗"} ${nomi}` + (olingan === kutilgan ? "" : `\n   olindi : ${olingan}\n   kerak  : ${kutilgan}`));
+  t("So'zlar ro'yxati: 2048 ta", String(SOZLAR.length), "2048");
+  t("Keccak-256(\"\")", hex(keccak256(new Uint8Array())), "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470");
+  t("BIP-39: nol entropiya → ibora", (await entropiyadanIbora(new Uint8Array(16))).sozlar.join(" "), "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about");
+  t("BIP-39: seed (parol \"TREZOR\")", hex(await iboraSeed("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about", "TREZOR")),
+    "c55257c360c07c72029aebc1b53c05ed0362ada38ead3e3e9efa3708e53495531f09a6987599d18264c1e1c92f2cf141630c7a3c4ab7c81b2f001698e7463b04");
+  t("secp256k1: 1·G siqilgan", hex(siqilgan(ochiqKalit(1n))), "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798");
+  const m = await boshKalit(await iboraSeed("test test test test test test test test test test test junk"));
+  t("Hardhat: m/44'/60'/0'/0/0 manzili", ethManzil((await yolBoyicha(m, "m/44'/60'/0'/0/0")).k), "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+  t("Hardhat: m/44'/60'/0'/0/1 manzili", ethManzil((await yolBoyicha(m, "m/44'/60'/0'/0/1")).k), "0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+  $("testNatija").textContent = tst.join("\n");
+  return tst;
+}
+
+const xato = f => (...a) => f(...a).catch(e => alert("Xato: " + (e.message || e)));
+$("yangi").onclick = xato(async () => { $("ent").value = hex(crypto.getRandomValues(new Uint8Array(+$("hajm").value))); await entropiyaKorsat(); });
+$("nol").onclick = xato(async () => { $("ent").value = "00".repeat(+$("hajm").value); await entropiyaKorsat(); });
+$("ent").oninput = xato(entropiyaKorsat);
+$("tikla").onclick = xato(tikla);
+$("hardhat").onclick = xato(async () => { $("ibora").value = "test test test test test test test test test test test junk"; await tikla(); });
+$("parol").onchange = xato(hisobla);
+$("hisobla").onclick = xato(hisobla);
+$("selftest").onclick = xato(selfTest);
+$("rpcUlan").onclick = () => rpcUlan().catch(e => $("rpcInfo").innerHTML = `<span class="yoq">✗ Ulanib bo'lmadi: ${e.message || e}</span>\nInternetni tekshiring yoki boshqa RPC manzilini tanlang.`);
+$("mmUlan").onclick = () => mmUlan().catch(e => $("mmInfo").innerHTML = `<span class="yoq">✗ ${e.message || e}</span>`);
+$("mmBalans").onclick = () => mmBalans().catch(e => $("mmInfo").innerHTML = `<span class="yoq">✗ ${e.message || e}</span>`);
+if (!window.crypto || !crypto.subtle) $("entBit").textContent = "Brauzer WebCrypto'ni bermadi: sahifani to'g'ridan-to'g'ri fayl (file://) yoki https orqali oching.";
+else $("yangi").click();
+</script>
+</body></html>
